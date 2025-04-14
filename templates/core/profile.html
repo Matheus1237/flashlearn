@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block title %}Meu Perfil - FlashLearn{% endblock %}
+
+{% block content %}
+<div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6">
+  <h2 class="text-2xl font-bold mb-6">Meu Perfil</h2>
+  
+  <form method="post" class="space-y-4">
+    {% csrf_token %}
+    <div>
+      <label for="username" class="block text-sm font-medium mb-1">Nome de usuário</label>
+      <input type="text" name="username" id="username" value="{{ user.username }}" class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600" readonly>
+    </div>
+    
+    <div>
+      <label for="email" class="block text-sm font-medium mb-1">E-mail</label>
+      <input type="email" name="email" id="email" value="{{ user.email }}" class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600">
+    </div>
+    
+    <div>
+      <label for="first_name" class="block text-sm font-medium mb-1">Nome</label>
+      <input type="text" name="first_name" id="first_name" value="{{ user.first_name }}" class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600">
+    </div>
+    
+    <div>
+      <label for="last_name" class="block text-sm font-medium mb-1">Sobrenome</label>
+      <input type="text" name="last_name" id="last_name" value="{{ user.last_name }}" class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600">
+    </div>
+    
+    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors">
+      Salvar alterações
+    </button>
+  </form>
+</div>
+
+<div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+  <h2 class="text-2xl font-bold mb-6">Assinatura</h2>
+  
+  <div class="mb-6">
+    <p class="text-lg mb-2">Status atual: 
+      {% if user.profile.is_pro %}
+        <span class="text-blue-600 dark:text-blue-400 font-semibold">Plano Pro</span>
+      {% else %}
+        <span class="text-gray-600 dark:text-gray-400">Plano Gratuito</span>
+      {% endif %}
+    </p>
+    
+    {% if user.profile.is_pro %}
+      <p class="text-sm text-gray-600 dark:text-gray-400">
+        Sua assinatura está ativa até: {{ user.profile.pro_expiration|date:"d/m/Y" }}
+      </p>
+    {% endif %}
+  </div>
+  
+  {% if not user.profile.is_pro %}
+    <a href="{% url 'upgrade_pro' %}" class="inline-block bg-gradient-to-r from-blue-600 to-blue-500 text-white px-6 py-3 rounded-lg hover:from-blue-700 hover:to-blue-600 transition-all">
+      Fazer upgrade para Pro
+    </a>
+  {% else %}
+    <a href="{% url 'cancel_subscription' %}" class="inline-block text-red-600 dark:text-red-400 hover:underline">
+      Cancelar assinatura
+    </a>
+  {% endif %}
+</div>
+{% endblock %} 

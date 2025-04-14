@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block title %}Editar Deck{% endblock %}
+
+{% block content %}
+  <div class="bg-white dark:bg-gray-800 shadow-md rounded px-8 py-6 max-w-md mx-auto">
+    <h2 class="text-2xl font-bold mb-4 text-center text-gray-800 dark:text-gray-200">Editar Deck</h2>
+    <form method="POST">
+      {% csrf_token %}
+      <label class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">Nome</label>
+      <input type="text" name="name" value="{{ deck.name }}" 
+        class="w-full border dark:border-gray-600 rounded px-3 py-2 mb-4 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200" required>
+
+      <label class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">Descrição</label>
+      <textarea name="description" rows="3" 
+        class="w-full border dark:border-gray-600 rounded px-3 py-2 mb-4 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200">{{ deck.description }}</textarea>
+
+      <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition">
+        Salvar Alterações
+      </button>
+    </form>
+  </div>
+{% endblock %}

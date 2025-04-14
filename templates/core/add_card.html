@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <div class="max-w-lg mx-auto p-6 bg-white dark:bg-gray-800 shadow-md rounded-xl mt-10">
+    <h1 class="text-2xl font-bold mb-6 text-center text-gray-800 dark:text-gray-200">
+      Adicionar Card ao Deck: <span class="text-blue-600 dark:text-blue-400">{{ deck.name }}</span>
+    </h1>
+
+    <form method="post" class="space-y-4">
+      {% csrf_token %}
+
+      <div>
+        <label for="front" class="block font-medium text-gray-700 dark:text-gray-300 mb-1">Frente do card</label>
+        <textarea id="front" name="front" rows="3" placeholder="Digite o conteúdo da frente..."
+          class="w-full px-4 py-2 border dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500" required></textarea>
+      </div>
+
+      <div>
+        <label for="back" class="block font-medium text-gray-700 dark:text-gray-300 mb-1">Verso do card</label>
+        <textarea id="back" name="back" rows="3" placeholder="Digite o conteúdo do verso..."
+          class="w-full px-4 py-2 border dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500" required></textarea>
+      </div>
+
+      <div class="text-center">
+        <button type="submit"
+          class="bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 text-white font-semibold px-6 py-2 rounded-md transition">
+          Adicionar
+        </button>
+      </div>
+    </form>
+
+    <div class="mt-6 text-center">
+      <a href="{% url 'deck_list' %}" class="text-blue-600 dark:text-blue-400 hover:underline">← Voltar para decks</a>
+    </div>
+  </div>
+{% endblock %}

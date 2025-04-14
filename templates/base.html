@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}Flashcards{% endblock %}</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🃏</text></svg>">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {},
+        },
+      }
+    </script>
+    <script>
+      // Verifica se há preferência de tema salva
+      if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark')
+      } else {
+        document.documentElement.classList.remove('dark')
+      }
+    </script>
+  </head>
+  <body class="bg-gray-100 dark:bg-gray-900 min-h-screen font-sans text-gray-800 dark:text-gray-200 transition-colors duration-200">
+    <nav class="bg-white dark:bg-gray-800 shadow p-4 mb-6">
+      <div class="max-w-4xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
+        <h1 class="text-2xl font-bold">
+          <a href="{% url 'deck_list' %}" class="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">🃏 FlashLearn</a>
+        </h1>
+        {% if user.is_authenticated %}
+          <div class="flex items-center space-x-4">
+            <a href="{% url 'profile' %}" class="text-sm text-blue-600 dark:text-blue-400 hover:underline">Meu Perfil</a>
+            <a href="{% url 'dashboard' %}" class="text-sm text-blue-600 dark:text-blue-400 hover:underline">Dashboard</a>
+            {% if not user.profile.is_pro %}
+              <a href="{% url 'upgrade_pro' %}" class="text-sm bg-gradient-to-r from-blue-600 to-blue-500 text-white px-3 py-1 rounded-full hover:from-blue-700 hover:to-blue-600 transition-all">Upgrade Pro</a>
+            {% endif %}
+            <a href="{% url 'logout' %}" class="text-sm text-blue-600 dark:text-blue-400 hover:underline">Sair</a>
+            <button onclick="toggleTheme()" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+              <svg class="w-5 h-5 hidden dark:block" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"></path>
+              </svg>
+              <svg class="w-5 h-5 block dark:hidden" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
+              </svg>
+            </button>
+          </div>
+        {% endif %}
+      </div>
+    </nav>
+
+    <main class="max-w-4xl mx-auto px-4">
+      {% block content %}{% endblock %}
+    </main>
+
+    <!-- Lofi Music Player -->
+    <div id="musicPlayer" class="fixed bottom-4 right-4 z-50 transition-all duration-300">
+        <div id="playerContainer" class="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden w-80">
+            <div class="flex items-center justify-between p-3 bg-gradient-to-r from-purple-600 to-blue-600">
+                <div class="flex items-center space-x-2">
+                    <button id="togglePlayer" class="text-white hover:text-gray-200">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </button>
+                    <span class="text-white font-medium">Lofi Study</span>
+                </div>
+                <button id="minimizePlayer" class="text-white hover:text-gray-200">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <div id="playerContent" class="p-4">
+                <div id="player" class="w-full aspect-video"></div>
+                <div class="mt-3 flex items-center justify-between">
+                    <div class="flex items-center space-x-2">
+                        <button id="playPause" class="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </button>
+                        <span class="text-sm text-gray-600 dark:text-gray-400">Lofi Study Music</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button id="volumeControl" class="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+      function toggleTheme() {
+        const html = document.documentElement;
+        const isDark = html.classList.contains('dark');
+        
+        if (isDark) {
+          html.classList.remove('dark');
+          localStorage.setItem('theme', 'light');
+        } else {
+          html.classList.add('dark');
+          localStorage.setItem('theme', 'dark');
+        }
+      }
+    </script>
+
+    <script>
+    // YouTube IFrame API
+    let tag = document.createElement('script');
+    tag.src = "https://www.youtube.com/iframe_api";
+    let firstScriptTag = document.getElementsByTagName('script')[0];
+    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+    let player;
+    let isPlayerMinimized = false;
+    let isPlayerExpanded = true;
+
+    function onYouTubeIframeAPIReady() {
+        player = new YT.Player('player', {
+            height: '180',
+            width: '320',
+            videoId: 'jfKfPfyJRdk', // Lofi Girl - 24/7 lofi hip hop radio
+            playerVars: {
+                'autoplay': 0,
+                'controls': 0,
+                'disablekb': 1,
+                'enablejsapi': 1,
+                'fs': 0,
+                'iv_load_policy': 3,
+                'modestbranding': 1,
+                'playsinline': 1,
+                'rel': 0
+            },
+            events: {
+                'onReady': onPlayerReady,
+                'onStateChange': onPlayerStateChange
+            }
+        });
+    }
+
+    function onPlayerReady(event) {
+        // Player is ready
+    }
+
+    function onPlayerStateChange(event) {
+        // Handle player state changes
+    }
+
+    // Player Controls
+    document.getElementById('minimizePlayer').addEventListener('click', function() {
+        const playerContainer = document.getElementById('playerContainer');
+        const playerContent = document.getElementById('playerContent');
+        
+        if (isPlayerMinimized) {
+            playerContainer.style.width = '320px';
+            playerContent.style.display = 'block';
+            isPlayerMinimized = false;
+        } else {
+            playerContainer.style.width = '200px';
+            playerContent.style.display = 'none';
+            isPlayerMinimized = true;
+        }
+    });
+
+    document.getElementById('togglePlayer').addEventListener('click', function() {
+        const playerContainer = document.getElementById('playerContainer');
+        
+        if (isPlayerExpanded) {
+            playerContainer.style.transform = 'translateY(calc(100% - 48px))';
+            isPlayerExpanded = false;
+        } else {
+            playerContainer.style.transform = 'translateY(0)';
+            isPlayerExpanded = true;
+        }
+    });
+
+    document.getElementById('playPause').addEventListener('click', function() {
+        if (player.getPlayerState() === YT.PlayerState.PLAYING) {
+            player.pauseVideo();
+        } else {
+            player.playVideo();
+        }
+    });
+
+    // Volume control
+    let isMuted = false;
+    document.getElementById('volumeControl').addEventListener('click', function() {
+        if (isMuted) {
+            player.unMute();
+            isMuted = false;
+        } else {
+            player.mute();
+            isMuted = true;
+        }
+    });
+    </script>
+  </body>
+</html>

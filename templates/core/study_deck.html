@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+{% block title %}Estudo: {{ deck.name }}{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto text-center px-4">
+  <h2 class="text-2xl font-bold mb-6 text-gray-800 dark:text-gray-200">📖 Estudando: {{ deck.name }}</h2>
+
+  <div id="card-container" class="flex flex-col items-center justify-center">
+    {% for card in cards %}
+      <div class="card-wrapper w-full max-w-md" data-index="{{ forloop.counter0 }}" data-card-id="{{ card.id }}" {% if not forloop.first %}style="display: none;"{% endif %}>
+        <div class="card-flip w-full h-48 sm:h-64 perspective cursor-pointer mx-auto mb-4">
+          <div class="card-inner">
+            <div class="card-front flex items-center justify-center bg-blue-100 dark:bg-blue-900 text-xl font-semibold rounded-xl shadow-md p-4 text-gray-800 dark:text-gray-200">
+              {{ card.front }}
+            </div>
+            <div class="card-back flex items-center justify-center bg-green-100 dark:bg-green-900 text-xl font-semibold rounded-xl shadow-md p-4 text-gray-800 dark:text-gray-200">
+              {{ card.back }}
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-4 flex flex-col sm:flex-row justify-center gap-4">
+          <button class="btn-acertou bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded transition">Acertei ✅</button>
+          <button class="btn-errou bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded transition">Errei ❌</button>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+  <div class="mt-6">
+    <button id="next-btn" class="bg-gray-800 dark:bg-gray-700 text-white px-6 py-2 rounded hover:bg-gray-900 dark:hover:bg-gray-600 transition">➡️ Próximo</button>
+  </div>
+</div>
+
+<style>
+  .perspective {
+    perspective: 1000px;
+  }
+
+  .card-inner {
+    width: 100%;
+    height: 100%;
+    transition: transform 0.6s;
+    transform-style: preserve-3d;
+    position: relative;
+  }
+
+  .card-flip.flipped .card-inner {
+    transform: rotateY(180deg);
+  }
+
+  .card-front,
+  .card-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    border-radius: 1rem;
+  }
+
+  .card-back {
+    transform: rotateY(180deg);
+  }
+</style>
+
+<script>
+  let currentCard = 0;
+  const cardWrappers = document.querySelectorAll(".card-wrapper");
+
+  // Flip no clique
+  cardWrappers.forEach(wrapper => {
+    const card = wrapper.querySelector(".card-flip");
+    card.addEventListener("click", () => {
+      card.classList.toggle("flipped");
+    });
+  });
+
+  function avancarCard() {
+    cardWrappers[currentCard].querySelector(".card-flip").classList.remove("flipped");
+    cardWrappers[currentCard].style.display = "none";
+    currentCard++;
+    if (currentCard >= cardWrappers.length) {
+      window.location.href = "{% url 'desempenho' deck.id %}";
+      return;
+    }
+    cardWrappers[currentCard].style.display = "block";
+  }
+  
+  
+
+  document.getElementById("next-btn").addEventListener("click", avancarCard);
+
+  const csrftoken = "{{ csrf_token }}";
+
+  cardWrappers.forEach((wrapper, index) => {
+    const cardId = wrapper.dataset.cardId;
+    const btnAcertou = wrapper.querySelector(".btn-acertou");
+    const btnErrou = wrapper.querySelector(".btn-errou");
+
+    btnAcertou.addEventListener("click", () => {
+      registrarResposta(cardId, true);
+    });
+
+    btnErrou.addEventListener("click", () => {
+      registrarResposta(cardId, false);
+    });
+  });
+
+  const sessaoId = "{{ sessao_id }}";  // adicionado no contexto da view
+  
+  function registrarResposta(cardId, acertou) {
+    fetch(`/responder/${cardId}/`, {
+      method: "POST",
+      headers: {
+        "X-CSRFToken": csrftoken,
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      body: `acertou=${acertou}&sessao_id=${sessaoId}`
+    }).then(response => {
+      if (response.ok) {
+        avancarCard();
+      } else {
+        alert("Erro ao registrar resposta!");
+      }
+    });
+  }
+</script>
+{% endblock %}

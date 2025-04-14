@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block title %}Cards do Deck{% endblock %}
+
+{% block content %}
+  <div class="mb-6">
+    <h2 class="text-2xl sm:text-3xl font-bold mb-2 text-gray-800 dark:text-gray-200">📄 Cards de: {{ deck.name }}</h2>
+    <p class="text-gray-600 dark:text-gray-400">{{ deck.description }}</p>
+    <a href="{% url 'add_card' deck.id %}" class="mt-4 inline-block bg-blue-600 dark:bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700 dark:hover:bg-blue-600 transition">
+      ➕ Adicionar Card
+    </a>
+  </div>
+
+  {% if cards %}
+    <ul class="space-y-4">
+      {% for card in cards %}
+        <li class="bg-white dark:bg-gray-800 p-4 rounded shadow">
+          <p class="text-gray-800 dark:text-gray-200"><strong class="text-gray-700 dark:text-gray-300">Frente:</strong> {{ card.front }}</p>
+          <p class="text-gray-800 dark:text-gray-200"><strong class="text-gray-700 dark:text-gray-300">Verso:</strong> {{ card.back }}</p>
+          <div class="mt-2 flex flex-wrap gap-4 text-sm">
+            <a href="{% url 'edit_card' card.id %}" class="text-yellow-600 dark:text-yellow-400 hover:underline">✏️ Editar</a>
+            <a href="{% url 'delete_card' card.id %}" class="text-red-600 dark:text-red-400 hover:underline">🗑️ Excluir</a>
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="text-gray-600 dark:text-gray-400">Este deck ainda não possui cards.</p>
+  {% endif %}
+{% endblock %}

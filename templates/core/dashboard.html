@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="flex justify-between items-center mb-8">
+        <h1 class="text-3xl font-bold text-gray-800 dark:text-gray-200">Dashboard</h1>
+        <a href="{% url 'deck_list' %}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors">
+            Meus Decks
+        </a>
+    </div>
+    
+    <!-- Estatísticas Principais -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+            <h3 class="text-lg font-semibold mb-2 text-gray-800 dark:text-gray-200">Total de Decks</h3>
+            <p class="text-3xl font-bold text-blue-600 dark:text-blue-400">{{ total_decks }}</p>
+        </div>
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+            <h3 class="text-lg font-semibold mb-2 text-gray-800 dark:text-gray-200">Total de Cards</h3>
+            <p class="text-3xl font-bold text-green-600 dark:text-green-400">{{ total_cards }}</p>
+        </div>
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+            <h3 class="text-lg font-semibold mb-2 text-gray-800 dark:text-gray-200">Taxa de Acerto</h3>
+            <p class="text-3xl font-bold text-orange-600 dark:text-orange-400">{{ taxa_acerto|floatformat:1 }}%</p>
+        </div>
+    </div>
+
+    <!-- Desempenho Recente -->
+    <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md mb-8">
+        <h3 class="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-200">Desempenho Recente</h3>
+        <div class="grid grid-cols-2 gap-4">
+            <div class="text-center p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                <p class="text-2xl font-bold text-green-600 dark:text-green-400">{{ acertos_recentes }}</p>
+                <p class="text-gray-600 dark:text-gray-400">Acertos (7 dias)</p>
+            </div>
+            <div class="text-center p-4 bg-red-50 dark:bg-red-900/20 rounded-lg">
+                <p class="text-2xl font-bold text-red-600 dark:text-red-400">{{ erros_recentes }}</p>
+                <p class="text-gray-600 dark:text-gray-400">Erros (7 dias)</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Últimas Sessões -->
+    <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+        <h3 class="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-200">Últimas Sessões</h3>
+        <div class="space-y-4">
+            {% for sessao in sessoes_recentes|slice:":5" %}
+            <div class="flex justify-between items-center p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                <div>
+                    <p class="font-medium text-gray-800 dark:text-gray-200">{{ sessao.deck.name }}</p>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">{{ sessao.inicio|date:"d/m/Y H:i" }}</p>
+                </div>
+            </div>
+            {% empty %}
+            <p class="text-center text-gray-500 dark:text-gray-400">Nenhuma sessão encontrada</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

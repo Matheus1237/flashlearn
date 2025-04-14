@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}Upgrade Pro - FlashLearn{% endblock %}
+
+{% block content %}
+<div class="max-w-lg mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-8 text-center text-gray-800 dark:text-gray-200">Upgrade para FlashLearn Pro</h1>
+    
+    <!-- Plano Mensal -->
+    <div class="bg-gray-800 p-8 rounded-xl shadow-lg border border-gray-700">
+        <div class="text-center mb-6">
+            <h2 class="text-2xl font-bold mb-2 text-blue-400">Plano Pro</h2>
+            <p class="text-4xl font-bold mb-2 text-gray-200">R$ {{ monthly_price|floatformat:2 }}</p>
+            <p class="text-gray-400">por mês</p>
+        </div>
+
+        <div class="space-y-4 mb-8">
+            <div class="flex items-center text-gray-300">
+                <svg class="w-5 h-5 mr-3 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                <span>Decks ilimitados</span>
+            </div>
+            <div class="flex items-center text-gray-300">
+                <svg class="w-5 h-5 mr-3 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                <span>Cards ilimitados por deck</span>
+            </div>
+            <div class="flex items-center text-gray-300">
+                <svg class="w-5 h-5 mr-3 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                <span>Suporte prioritário</span>
+            </div>
+        </div>
+
+        <button id="checkout-button" class="w-full bg-gradient-to-r from-blue-600 to-blue-500 text-white py-3 rounded-lg text-lg font-semibold hover:from-blue-700 hover:to-blue-600 transition-all">
+            Assinar Agora
+        </button>
+    </div>
+</div>
+
+{% block extra_js %}
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+    const stripe = Stripe('{{ stripe_public_key }}');
+    const checkoutButton = document.getElementById('checkout-button');
+
+    checkoutButton.addEventListener('click', function() {
+        fetch('/upgrade-pro/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+        })
+        .then(function(response) {
+            return response.json();
+        })
+        .then(function(session) {
+            return stripe.redirectToCheckout({ sessionId: session.sessionId });
+        })
+        .then(function(result) {
+            if (result.error) {
+                alert(result.error.message);
+            }
+        })
+        .catch(function(error) {
+            console.error('Error:', error);
+        });
+    });
+</script>
+{% endblock %}
+{% endblock %} 

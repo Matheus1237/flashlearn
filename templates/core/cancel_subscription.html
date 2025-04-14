@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block title %}Cancelar Assinatura - FlashLearn{% endblock %}
+
+{% block content %}
+<div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 max-w-2xl mx-auto">
+  <h2 class="text-2xl font-bold mb-6">Cancelar Assinatura</h2>
+  
+  <div class="mb-6">
+    <p class="text-lg mb-4">Tem certeza que deseja cancelar sua assinatura Pro?</p>
+    <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+      Ao cancelar sua assinatura:
+    </p>
+    <ul class="list-disc list-inside text-sm text-gray-600 dark:text-gray-400 mb-6 space-y-2">
+      <li>Você perderá acesso aos recursos exclusivos do plano Pro</li>
+      <li>Sua assinatura continuará ativa até o final do período atual</li>
+      <li>Você poderá reativar sua assinatura a qualquer momento</li>
+    </ul>
+  </div>
+  
+  <form method="post" class="space-y-4">
+    {% csrf_token %}
+    <div class="flex space-x-4">
+      <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg transition-colors">
+        Confirmar Cancelamento
+      </button>
+      <a href="{% url 'profile' %}" class="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 px-6 py-2 rounded-lg transition-colors">
+        Voltar
+      </a>
+    </div>
+  </form>
+</div>
+{% endblock %} 

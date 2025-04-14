@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% block title %}Desempenho: {{ deck.name }}{% endblock %}
+
+{% block content %}
+<div class="max-w-xl mx-auto text-center px-4">
+  <h2 class="text-2xl font-bold mb-6 text-gray-800 dark:text-gray-200">📊 Desempenho: {{ deck.name }}</h2>
+
+  {% if sessao %}
+    <p class="mb-4 text-gray-500 dark:text-gray-400">Última sessão: {{ sessao.inicio|date:"d/m/Y H:i" }}</p>
+
+    {% if acertos > 0 or erros > 0 %}
+      <div class="w-full max-w-md mx-auto mb-4">
+        <canvas id="graficoDesempenho" class="w-full h-full"></canvas>
+      </div>
+
+      <div class="grid grid-cols-2 gap-4 max-w-sm mx-auto mb-6">
+        <div class="bg-green-100 dark:bg-green-900 p-4 rounded-lg">
+          <p class="text-green-700 dark:text-green-300 text-sm">Acertos</p>
+          <p class="text-2xl font-bold text-green-600 dark:text-green-400">{{ acertos }}</p>
+        </div>
+        <div class="bg-red-100 dark:bg-red-900 p-4 rounded-lg">
+          <p class="text-red-700 dark:text-red-300 text-sm">Erros</p>
+          <p class="text-2xl font-bold text-red-600 dark:text-red-400">{{ erros }}</p>
+        </div>
+      </div>
+
+      <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+      <script>
+        const ctx = document.getElementById('graficoDesempenho').getContext('2d');
+        const isDarkMode = document.documentElement.classList.contains('dark');
+        
+        new Chart(ctx, {
+          type: 'doughnut',
+          data: {
+            labels: ['Acertos', 'Erros'],
+            datasets: [{
+              data: [{{ acertos }}, {{ erros }}],
+              backgroundColor: ['#22c55e', '#ef4444']
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+              legend: { 
+                position: 'bottom',
+                labels: {
+                  color: isDarkMode ? '#e5e7eb' : '#374151',
+                  padding: 20,
+                  font: {
+                    size: 14
+                  }
+                }
+              },
+              tooltip: {
+                titleFont: {
+                  size: 16
+                },
+                bodyFont: {
+                  size: 16
+                },
+                callbacks: {
+                  label: function(context) {
+                    const label = context.label || '';
+                    const value = context.raw || 0;
+                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                    const percentage = Math.round((value / total) * 100);
+                    return `${label}: ${value} (${percentage}%)`;
+                  }
+                }
+              }
+            }
+          }
+        });
+      </script>
+    {% else %}
+      <p class="text-gray-600 dark:text-gray-400">Nenhuma resposta registrada na última sessão.</p>
+    {% endif %}
+  {% else %}
+    <p class="text-gray-600 dark:text-gray-400">Nenhuma sessão encontrada para este deck.</p>
+  {% endif %}
+
+  <a href="{% url 'deck_list' %}" class="mt-6 inline-block text-blue-600 dark:text-blue-400 hover:underline">← Voltar</a>
+</div>
+{% endblock %}
