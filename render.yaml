@@ -3,7 +3,7 @@ services:
     name: flashlearn
     env: python
     buildCommand: pip install -r requirements.txt && python manage.py collectstatic --noinput
-    startCommand: gunicorn setup.wsgi:application
+    startCommand: python manage.py create_admin && gunicorn setup.wsgi:application
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.7
@@ -14,4 +14,4 @@ services:
       - key: STRIPE_PUBLISHABLE_KEY
         sync: false
       - key: STRIPE_SECRET_KEY
-        sync: false 
+        sync: false
